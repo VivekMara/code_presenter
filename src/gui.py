@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+from src.parser import FunctionParser
 
 class Gui:
     def __init__(self):
@@ -15,8 +16,28 @@ class Gui:
         self.current_frame = None
     
     def select_file(self):
-        filepath = filedialog.askopenfilename(title="Select Code File",filetypes=[("Python Files", "*.py"), ("All Files", "*.*")])
-        print(filepath)
+        filepath = filedialog.askopenfilename(
+            title="Select Code File",
+            filetypes=[("Python Files", "*.py"), ("All Files", "*.*")]
+        )
+
+        if not filepath:
+            return
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                data = f.read()
+
+            print("Parsing...")
+            new_parser = FunctionParser(data)
+            funcs = new_parser.extract_functions()
+            print(f"Extracted {len(funcs)} functions")
+
+            for f in funcs:
+                print(f"\nFunction `{f['name']}`:\n{f['code']}")
+
+        except Exception as e:
+            print("Error loading or parsing file:", e)
+
     
     def show_main_menu(self):
         if self.current_frame:
